@@ -134,8 +134,9 @@ func (cs *CustomScheduler) NormalizeScore(ctx context.Context, state *framework.
 
 	validMin := framework.MinNodeScore
 	validMax := framework.MaxNodeScore
-	for _, nodeScore := range scores {
-		nodeScore.Score = validMin + ((nodeScore.Score-minScore)/(maxScore-minScore))*(validMax-validMin)
+	// structs are copied in range loop, need to access by index
+	for idx, nodeScore := range scores {
+		scores[idx].Score = validMin + ((nodeScore.Score-minScore)/(maxScore-minScore))*(validMax-validMin)
 	}
 
 	return framework.NewStatus(framework.Success, "Successfully normalized node scores")
