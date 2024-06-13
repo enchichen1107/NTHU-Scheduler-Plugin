@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 
 	"log"
@@ -112,7 +113,8 @@ func (cs *CustomScheduler) Score(ctx context.Context, state *framework.CycleStat
 	if cs.scoreMode == "Most" {
 		score = allocatableMem
 	} else if cs.scoreMode == "Least" {
-		score = -allocatableMem
+		tmp := math.Pow(2, 30)
+		score = int64(tmp) - allocatableMem
 	}
 
 	return score, framework.NewStatus(framework.Success, "Successfully scored")
@@ -136,7 +138,7 @@ func (cs *CustomScheduler) NormalizeScore(ctx context.Context, state *framework.
 	validMax := framework.MaxNodeScore
 	// structs are copied in range loop, need to access by index
 	for idx, nodeScore := range scores {
-		scores[idx].Score = validMin + ((nodeScore.Score-minScore)/(maxScore-minScore))*(validMax-validMin)
+		scores[idx].Score = validMin + ((nodeScore.Score-minScore)*(validMax-validMin))/(maxScore-minScore)
 	}
 
 	return framework.NewStatus(framework.Success, "Successfully normalized node scores")
